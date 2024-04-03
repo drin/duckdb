@@ -253,23 +253,61 @@ static void InitializeConnectionMethods(py::class_<DuckDBPyConnection, shared_pt
 	             py::arg("filename") = false, py::arg("hive_partitioning") = false, py::arg("union_by_name") = false,
 	             py::arg("compression") = py::none());
 
-	m.def("from_substrait", &DuckDBPyConnection::FromSubstrait, "Create a query object from protobuf plan",
-	      py::arg("proto"))
-	    .def("get_substrait", &DuckDBPyConnection::GetSubstrait, "Serialize a query to protobuf", py::arg("query"),
-	         py::kw_only(), py::arg("enable_optimizer") = true)
-	    .def("get_substrait_json", &DuckDBPyConnection::GetSubstraitJSON,
-	         "Serialize a query to protobuf on the JSON format", py::arg("query"), py::kw_only(),
-	         py::arg("enable_optimizer") = true)
-	    .def("from_substrait_json", &DuckDBPyConnection::FromSubstraitJSON,
-	         "Create a query object from a JSON protobuf plan", py::arg("json"))
-	    .def("get_table_names", &DuckDBPyConnection::GetTableNames, "Extract the required table names from a query",
-	         py::arg("query"))
-	    .def_property_readonly("description", &DuckDBPyConnection::GetDescription,
-	                           "Get result set attributes, mainly column names")
-	    .def_property_readonly("rowcount", &DuckDBPyConnection::GetRowcount, "Get result set row count")
-	    .def("install_extension", &DuckDBPyConnection::InstallExtension, "Install an extension by name",
-	         py::arg("extension"), py::kw_only(), py::arg("force_install") = false)
-	    .def("load_extension", &DuckDBPyConnection::LoadExtension, "Load an installed extension", py::arg("extension"));
+  // Substrait related functions
+	m.def( "from_substrait"
+        ,&DuckDBPyConnection::FromSubstrait
+        ,"Create a query object from protobuf plan"
+        ,py::arg("proto")
+    )
+	 .def( "explain_substrait"
+        ,&DuckDBPyConnection::ExplainSubstrait
+        ,"Explain a protobuf plan"
+        ,py::arg("proto")
+    )
+	 .def( "get_substrait"
+        ,&DuckDBPyConnection::GetSubstrait
+        ,"Serialize a query to protobuf"
+        ,py::arg("query")
+        ,py::kw_only()
+        ,py::arg("enable_optimizer") = true
+    )
+	 .def( "get_substrait_json"
+        ,&DuckDBPyConnection::GetSubstraitJSON
+        ,"Serialize a query to protobuf on the JSON format"
+        ,py::arg("query")
+        ,py::kw_only()
+        ,py::arg("enable_optimizer") = true
+    )
+	 .def( "from_substrait_json"
+        ,&DuckDBPyConnection::FromSubstraitJSON
+        ,"Create a query object from a JSON protobuf plan"
+        ,py::arg("json")
+    )
+	 .def( "get_table_names"
+        ,&DuckDBPyConnection::GetTableNames
+        ,"Extract the required table names from a query"
+        ,py::arg("query")
+    )
+	 .def_property_readonly( "description"
+                          ,&DuckDBPyConnection::GetDescription
+                          ,"Get result set attributes, mainly column names"
+    )
+	 .def_property_readonly( "rowcount"
+                          ,&DuckDBPyConnection::GetRowcount
+                          ,"Get result set row count"
+    )
+	 .def( "install_extension"
+        ,&DuckDBPyConnection::InstallExtension
+        ,"Install an extension by name"
+        ,py::arg("extension")
+        ,py::kw_only()
+        ,py::arg("force_install") = false
+    )
+	 .def( "load_extension"
+        ,&DuckDBPyConnection::LoadExtension
+        ,"Load an installed extension"
+        ,py::arg("extension")
+    );
 }
 
 void DuckDBPyConnection::UnregisterFilesystem(const py::str &name) {
@@ -1202,6 +1240,15 @@ unique_ptr<DuckDBPyRelation> DuckDBPyConnection::FromSubstrait(py::bytes &proto)
 	vector<Value> params;
 	params.emplace_back(Value::BLOB_RAW(proto));
 	return make_uniq<DuckDBPyRelation>(connection->TableFunction("from_substrait", params)->Alias(name));
+}
+
+unique_ptr<DuckDBPyRelation> DuckDBPyConnection::ExplainSubstrait(py::bytes &proto) {
+	if (!connection) { throw ConnectionException("Connection has already been closed"); }
+
+	string name = "substrait_plan_" + StringUtil::GenerateRandomName();
+	vector<Value> params;
+	params.emplace_back(Value::BLOB_RAW(proto));
+	return make_uniq<DuckDBPyRelation>(connection->TableFunction("translate_mohair", params)->Alias(name));
 }
 
 unique_ptr<DuckDBPyRelation> DuckDBPyConnection::GetSubstrait(const string &query, bool enable_optimizer) {
