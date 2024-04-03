@@ -175,118 +175,286 @@ static void InitializeConnectionMethods(py::class_<DuckDBPyConnection, shared_pt
 	m.def("struct_type", &DuckDBPyConnection::StructType, "Create a struct type object from 'fields'",
 	      py::arg("fields"));
 	m.def("row_type", &DuckDBPyConnection::StructType, "Create a struct type object from 'fields'", py::arg("fields"));
-	m.def("map_type", &DuckDBPyConnection::MapType, "Create a map type object from 'key_type' and 'value_type'",
-	      py::arg("key").none(false), py::arg("value").none(false));
-	m.def("duplicate", &DuckDBPyConnection::Cursor, "Create a duplicate of the current connection");
-	m.def("execute", &DuckDBPyConnection::Execute,
-	      "Execute the given SQL query, optionally using prepared statements with parameters set", py::arg("query"),
-	      py::arg("parameters") = py::none());
-	m.def("executemany", &DuckDBPyConnection::ExecuteMany,
-	      "Execute the given prepared statement multiple times using the list of parameter sets in parameters",
-	      py::arg("query"), py::arg("parameters") = py::none());
-	m.def("close", &DuckDBPyConnection::Close, "Close the connection");
-	m.def("interrupt", &DuckDBPyConnection::Interrupt, "Interrupt pending operations");
-	m.def("query_progress", &DuckDBPyConnection::QueryProgress, "Query progress of pending operation");
-	m.def("fetchone", &DuckDBPyConnection::FetchOne, "Fetch a single row from a result following execute");
-	m.def("fetchmany", &DuckDBPyConnection::FetchMany, "Fetch the next set of rows from a result following execute",
-	      py::arg("size") = 1);
-	m.def("fetchall", &DuckDBPyConnection::FetchAll, "Fetch all rows from a result following execute");
-	m.def("fetchnumpy", &DuckDBPyConnection::FetchNumpy, "Fetch a result as list of NumPy arrays following execute");
-	m.def("fetchdf", &DuckDBPyConnection::FetchDF, "Fetch a result as DataFrame following execute()", py::kw_only(),
-	      py::arg("date_as_object") = false);
-	m.def("fetch_df", &DuckDBPyConnection::FetchDF, "Fetch a result as DataFrame following execute()", py::kw_only(),
-	      py::arg("date_as_object") = false);
-	m.def("df", &DuckDBPyConnection::FetchDF, "Fetch a result as DataFrame following execute()", py::kw_only(),
-	      py::arg("date_as_object") = false);
-	m.def("fetch_df_chunk", &DuckDBPyConnection::FetchDFChunk,
-	      "Fetch a chunk of the result as DataFrame following execute()", py::arg("vectors_per_chunk") = 1,
-	      py::kw_only(), py::arg("date_as_object") = false);
-	m.def("pl", &DuckDBPyConnection::FetchPolars, "Fetch a result as Polars DataFrame following execute()",
-	      py::arg("rows_per_batch") = 1000000);
-	m.def("fetch_arrow_table", &DuckDBPyConnection::FetchArrow, "Fetch a result as Arrow table following execute()",
-	      py::arg("rows_per_batch") = 1000000);
-	m.def("arrow", &DuckDBPyConnection::FetchArrow, "Fetch a result as Arrow table following execute()",
-	      py::arg("rows_per_batch") = 1000000);
-	m.def("fetch_record_batch", &DuckDBPyConnection::FetchRecordBatchReader,
-	      "Fetch an Arrow RecordBatchReader following execute()", py::arg("rows_per_batch") = 1000000);
-	m.def("torch", &DuckDBPyConnection::FetchPyTorch, "Fetch a result as dict of PyTorch Tensors following execute()");
-	m.def("tf", &DuckDBPyConnection::FetchTF, "Fetch a result as dict of TensorFlow Tensors following execute()");
-	m.def("begin", &DuckDBPyConnection::Begin, "Start a new transaction");
-	m.def("commit", &DuckDBPyConnection::Commit, "Commit changes performed within a transaction");
-	m.def("rollback", &DuckDBPyConnection::Rollback, "Roll back changes performed within a transaction");
-	m.def("checkpoint", &DuckDBPyConnection::Checkpoint,
-	      "Synchronizes data in the write-ahead log (WAL) to the database data file (no-op for in-memory connections)");
-	m.def("append", &DuckDBPyConnection::Append, "Append the passed DataFrame to the named table",
-	      py::arg("table_name"), py::arg("df"), py::kw_only(), py::arg("by_name") = false);
-	m.def("register", &DuckDBPyConnection::RegisterPythonObject,
-	      "Register the passed Python Object value for querying with a view", py::arg("view_name"),
-	      py::arg("python_object"));
-	m.def("unregister", &DuckDBPyConnection::UnregisterPythonObject, "Unregister the view name", py::arg("view_name"));
-	m.def("table", &DuckDBPyConnection::Table, "Create a relation object for the named table", py::arg("table_name"));
-	m.def("view", &DuckDBPyConnection::View, "Create a relation object for the named view", py::arg("view_name"));
-	m.def("values", &DuckDBPyConnection::Values, "Create a relation object from the passed values");
-	m.def("table_function", &DuckDBPyConnection::TableFunction,
-	      "Create a relation object from the named table function with given parameters", py::arg("name"),
-	      py::arg("parameters") = py::none());
-	m.def("read_json", &DuckDBPyConnection::ReadJSON, "Create a relation object from the JSON file in 'name'",
-	      py::arg("path_or_buffer"), py::kw_only(), py::arg("columns") = py::none(),
-	      py::arg("sample_size") = py::none(), py::arg("maximum_depth") = py::none(), py::arg("records") = py::none(),
-	      py::arg("format") = py::none(), py::arg("date_format") = py::none(), py::arg("timestamp_format") = py::none(),
-	      py::arg("compression") = py::none(), py::arg("maximum_object_size") = py::none(),
-	      py::arg("ignore_errors") = py::none(), py::arg("convert_strings_to_integers") = py::none(),
-	      py::arg("field_appearance_threshold") = py::none(), py::arg("map_inference_threshold") = py::none(),
-	      py::arg("maximum_sample_files") = py::none(), py::arg("filename") = py::none(),
-	      py::arg("hive_partitioning") = py::none(), py::arg("union_by_name") = py::none(),
-	      py::arg("hive_types") = py::none(), py::arg("hive_types_autocast") = py::none());
-	m.def("extract_statements", &DuckDBPyConnection::ExtractStatements,
-	      "Parse the query string and extract the Statement object(s) produced", py::arg("query"));
-	m.def("sql", &DuckDBPyConnection::RunQuery,
-	      "Run a SQL query. If it is a SELECT statement, create a relation object from the given SQL query, otherwise "
-	      "run the query as-is.",
-	      py::arg("query"), py::kw_only(), py::arg("alias") = "", py::arg("params") = py::none());
-	m.def("query", &DuckDBPyConnection::RunQuery,
-	      "Run a SQL query. If it is a SELECT statement, create a relation object from the given SQL query, otherwise "
-	      "run the query as-is.",
-	      py::arg("query"), py::kw_only(), py::arg("alias") = "", py::arg("params") = py::none());
-	m.def("from_query", &DuckDBPyConnection::RunQuery,
-	      "Run a SQL query. If it is a SELECT statement, create a relation object from the given SQL query, otherwise "
-	      "run the query as-is.",
-	      py::arg("query"), py::kw_only(), py::arg("alias") = "", py::arg("params") = py::none());
-	m.def("read_csv", &DuckDBPyConnection::ReadCSV, "Create a relation object from the CSV file in 'name'",
-	      py::arg("path_or_buffer"), py::kw_only());
-	m.def("from_csv_auto", &DuckDBPyConnection::ReadCSV, "Create a relation object from the CSV file in 'name'",
-	      py::arg("path_or_buffer"), py::kw_only());
-	m.def("from_df", &DuckDBPyConnection::FromDF, "Create a relation object from the DataFrame in df", py::arg("df"));
-	m.def("from_arrow", &DuckDBPyConnection::FromArrow, "Create a relation object from an Arrow object",
-	      py::arg("arrow_object"));
-	m.def("from_parquet", &DuckDBPyConnection::FromParquet,
-	      "Create a relation object from the Parquet files in file_glob", py::arg("file_glob"),
-	      py::arg("binary_as_string") = false, py::kw_only(), py::arg("file_row_number") = false,
-	      py::arg("filename") = false, py::arg("hive_partitioning") = false, py::arg("union_by_name") = false,
-	      py::arg("compression") = py::none());
-	m.def("read_parquet", &DuckDBPyConnection::FromParquet,
-	      "Create a relation object from the Parquet files in file_glob", py::arg("file_glob"),
-	      py::arg("binary_as_string") = false, py::kw_only(), py::arg("file_row_number") = false,
-	      py::arg("filename") = false, py::arg("hive_partitioning") = false, py::arg("union_by_name") = false,
-	      py::arg("compression") = py::none());
-	m.def("from_parquet", &DuckDBPyConnection::FromParquets,
-	      "Create a relation object from the Parquet files in file_globs", py::arg("file_globs"),
-	      py::arg("binary_as_string") = false, py::kw_only(), py::arg("file_row_number") = false,
-	      py::arg("filename") = false, py::arg("hive_partitioning") = false, py::arg("union_by_name") = false,
-	      py::arg("compression") = py::none());
-	m.def("read_parquet", &DuckDBPyConnection::FromParquets,
-	      "Create a relation object from the Parquet files in file_globs", py::arg("file_globs"),
-	      py::arg("binary_as_string") = false, py::kw_only(), py::arg("file_row_number") = false,
-	      py::arg("filename") = false, py::arg("hive_partitioning") = false, py::arg("union_by_name") = false,
-	      py::arg("compression") = py::none());
-	m.def("get_table_names", &DuckDBPyConnection::GetTableNames, "Extract the required table names from a query",
-	      py::arg("query"));
-	m.def("install_extension", &DuckDBPyConnection::InstallExtension,
-	      "Install an extension by name, with an optional version and/or repository to get the extension from",
-	      py::arg("extension"), py::kw_only(), py::arg("force_install") = false, py::arg("repository") = py::none(),
-	      py::arg("repository_url") = py::none(), py::arg("version") = py::none());
-	m.def("load_extension", &DuckDBPyConnection::LoadExtension, "Load an installed extension", py::arg("extension"));
-} // END_OF_CONNECTION_METHODS
+
+  // Reformatted binding definitions
+	m.def("map_type", &DuckDBPyConnection::MapType
+                  , "Create a map type object from 'key_type' and 'value_type'"
+                  , py::arg("key").none(false)
+                  , py::arg("value").none(false)
+       )
+	 .def("execute", &DuckDBPyConnection::Execute
+                 , "Execute the given SQL query, optionally using"
+                   " prepared statements with parameters set"
+                 , py::arg("query")
+                 , py::arg("parameters") = py::none()
+       )
+	 .def("executemany", &DuckDBPyConnection::ExecuteMany
+                     , "Execute the given prepared statement multiple times"
+                       " using the list of parameter sets in parameters"
+                     , py::arg("query")
+                     , py::arg("parameters") = py::none()
+       )
+	 .def("duplicate"     , &DuckDBPyConnection::Cursor
+                        , "Create a duplicate of the current connection"
+       )
+	 .def("close"         , &DuckDBPyConnection::Close
+                        , "Close the connection"
+       )
+	 .def("interrupt"     , &DuckDBPyConnection::Interrupt
+                        , "Interrupt pending operations"
+       )
+	 .def("query_progress", &DuckDBPyConnection::QueryProgress
+                        , "Query progress of pending operation"
+       )
+	 .def("fetchone" , &DuckDBPyConnection::FetchOne , "Fetch a single row from a result following execute")
+	 .def("fetchall" , &DuckDBPyConnection::FetchAll , "Fetch all rows from a result following execute")
+	 .def("fetchmany", &DuckDBPyConnection::FetchMany
+                   , "Fetch the next set of rows from a result following execute"
+                   , py::arg("size") = 1
+       )
+	 .def("fetchnumpy", &DuckDBPyConnection::FetchNumpy
+                    , "Fetch a result as list of NumPy arrays following execute"
+       )
+	 .def("df"     , &DuckDBPyConnection::FetchDF
+                 , "Fetch a result as DataFrame following execute()"
+                 , py::kw_only()
+                 , py::arg("date_as_object") = false
+       )
+	 .def("fetchdf", &DuckDBPyConnection::FetchDF
+                 , "Fetch a result as DataFrame following execute()"
+                 , py::kw_only()
+                 , py::arg("date_as_object") = false
+       )
+	 .def("fetch_df", &DuckDBPyConnection::FetchDF
+                  , "Fetch a result as DataFrame following execute()"
+                  , py::kw_only()
+                  , py::arg("date_as_object") = false
+       )
+	 .def("fetch_df_chunk", &DuckDBPyConnection::FetchDFChunk
+                        , "Fetch a chunk of the result as DataFrame following execute()"
+                        , py::arg("vectors_per_chunk") = 1
+                        , py::kw_only()
+                        , py::arg("date_as_object") = false
+       )
+	 .def("pl", &DuckDBPyConnection::FetchPolars
+            , "Fetch a result as Polars DataFrame following execute()"
+            , py::arg("rows_per_batch") = 1000000
+       )
+	 .def("arrow"            , &DuckDBPyConnection::FetchArrow
+                           , "Fetch a result as Arrow table following execute()"
+                           , py::arg("rows_per_batch") = 1000000
+       )
+	 .def("fetch_arrow_table", &DuckDBPyConnection::FetchArrow
+                           , "Fetch a result as Arrow table following execute()"
+                           , py::arg("rows_per_batch") = 1000000
+       )
+	 .def("fetch_record_batch", &DuckDBPyConnection::FetchRecordBatchReader
+                            , "Fetch an Arrow RecordBatchReader following execute()"
+                            , py::arg("rows_per_batch") = 1000000
+       )
+	 .def("torch"   , &DuckDBPyConnection::FetchPyTorch , "Fetch a result as dict of PyTorch Tensors following execute()")
+	 .def("tf"      , &DuckDBPyConnection::FetchTF, "Fetch a result as dict of TensorFlow Tensors following execute()")
+	 .def("begin"   , &DuckDBPyConnection::Begin, "Start a new transaction")
+	 .def("commit"  , &DuckDBPyConnection::Commit, "Commit changes performed within a transaction")
+	 .def("rollback", &DuckDBPyConnection::Rollback, "Roll back changes performed within a transaction")
+	 .def("checkpoint", &DuckDBPyConnection::Checkpoint
+                    , "Synchronizes data in the write-ahead log (WAL)"
+                      " to the database data file (no-op for in-memory connections)"
+       );
+	 .def("append", &DuckDBPyConnection::Append
+                , "Append the passed DataFrame to the named table"
+                , py::arg("table_name")
+                , py::arg("df")
+                , py::kw_only()
+                , py::arg("by_name") = false
+       )
+	 .def("register", &DuckDBPyConnection::RegisterPythonObject
+                  , "Register the passed Python Object value for querying with a view"
+                  , py::arg("view_name")
+                  , py::arg("python_object")
+       )
+	 .def("unregister", &DuckDBPyConnection::UnregisterPythonObject, "Unregister the view name", py::arg("view_name"))
+	 .def("table"     , &DuckDBPyConnection::Table , "Create a relation object for the named table", py::arg("table_name"))
+	 .def("view"      , &DuckDBPyConnection::View  , "Create a relation object for the named view" , py::arg("view_name"))
+	 .def("values"    , &DuckDBPyConnection::Values, "Create a relation object from the passed values", py::arg("values"))
+	 .def("table_function", &DuckDBPyConnection::TableFunction
+                        , "Create a relation object from the name'd table function with given parameters"
+                        , py::arg("name")
+                        , py::arg("parameters") = py::none()
+       )
+	 .def("get_table_names", &DuckDBPyConnection::GetTableNames
+                         , "Extract the required table names from a query"
+                         , py::arg("query")
+       )
+	 .def("extract_statements", &DuckDBPyConnection::ExtractStatements
+                            , "Parse the query string and extract the Statement object(s) produced"
+                            , py::arg("query")
+       )
+   .def("sql", &DuckDBPyConnection::RunQuery
+             , "Run a SQL query. If it is a SELECT statement, create a relation"
+               " object from the given SQL query, otherwise run the query as-is."
+             , py::arg("query")
+             , py::kw_only()
+             , py::arg("alias") = ""
+             , py::arg("params") = py::none()
+       )
+   .def("query", &DuckDBPyConnection::RunQuery
+               , "Run a SQL query. If it is a SELECT statement, create a relation"
+                 " object from the given SQL query, otherwise run the query as-is."
+               , py::arg("query")
+               , py::kw_only()
+               , py::arg("alias") = ""
+               , py::arg("params") = py::none()
+       )
+   .def("from_query", &DuckDBPyConnection::RunQuery
+                    , "Run a SQL query. If it is a SELECT statement, create a relation"
+                      " object from the given SQL query, otherwise run the query as-is."
+                    , py::arg("query")
+                    , py::kw_only()
+                    , py::arg("alias") = ""
+                    , py::arg("params") = py::none()
+       )
+  ;
+
+  // JSON and CSV functions
+	m.def("read_json", &DuckDBPyConnection::ReadJSON
+                   , "Create a relation object from the JSON file in 'name'"
+                   , py::arg("path_or_buffer")
+                   , py::kw_only()
+                   , py::arg("columns")                     = py::none()
+                   , py::arg("sample_size")                 = py::none()
+                   , py::arg("maximum_depth")               = py::none()
+                   , py::arg("records")                     = py::none()
+                   , py::arg("format")                      = py::none()
+                   , py::arg("date_format")                 = py::none()
+                   , py::arg("timestamp_format")            = py::none()
+                   , py::arg("compression")                 = py::none()
+                   , py::arg("maximum_object_size")         = py::none()
+                   , py::arg("ignore_errors")               = py::none()
+                   , py::arg("convert_strings_to_integers") = py::none()
+                   , py::arg("field_appearance_threshold")  = py::none()
+                   , py::arg("map_inference_threshold")     = py::none()
+                   , py::arg("maximum_sample_files")        = py::none()
+                   , py::arg("filename")                    = py::none()
+                   , py::arg("hive_partitioning")           = py::none()
+                   , py::arg("union_by_name")               = py::none()
+                   , py::arg("hive_types")                  = py::none()
+                   , py::arg("hive_types_autocast")         = py::none()
+       )
+   .def("read_csv", &DuckDBPyConnection::ReadCSV
+                  , "Create a relation object from the CSV file in 'name'"
+                  , py::arg("path_or_buffer")
+                  , py::kw_only()
+       )
+   .def("from_csv_auto", &DuckDBPyConnection::ReadCSV
+                       , "Create a relation object from the CSV file in 'name'"
+                       , py::arg("path_or_buffer")
+                       , py::kw_only()
+       )
+  ;
+
+  // Interface with data engineering ecosystem
+	m.def("from_df", &DuckDBPyConnection::FromDF
+                 , "Create a relation object from the DataFrame in df"
+                 , py::arg("df")
+       )
+	 .def("from_arrow", &DuckDBPyConnection::FromArrow
+                    , "Create a relation object from an Arrow object"
+                    , py::arg("arrow_object")
+       )
+  ;
+
+  // Parquet functions
+  m.def("from_parquet", &DuckDBPyConnection::FromParquet
+                      , "Create a relation object from the Parquet files in file_glob"
+                      , py::arg("file_glob")
+                      , py::arg("binary_as_string")  = false
+                      , py::kw_only()
+                      , py::arg("file_row_number")   = false
+                      , py::arg("filename")          = false
+                      , py::arg("hive_partitioning") = false
+                      , py::arg("union_by_name")     = false
+                      , py::arg("compression")       = py::none()
+       )
+	 .def("read_parquet", &DuckDBPyConnection::FromParquet
+                      , "Create a relation object from the Parquet files in file_glob"
+                      , py::arg("file_glob")
+                      , py::arg("binary_as_string")  = false
+                      , py::kw_only()
+                      , py::arg("file_row_number")   = false
+                      , py::arg("filename")          = false
+                      , py::arg("hive_partitioning") = false
+                      , py::arg("union_by_name")     = false
+                      , py::arg("compression")       = py::none()
+       )
+	 .def("from_parquet", &DuckDBPyConnection::FromParquets
+                      , "Create a relation object from the Parquet files in file_globs"
+                      , py::arg("file_globs")
+                      , py::arg("binary_as_string")  = false
+                      , py::kw_only()
+                      , py::arg("file_row_number")   = false
+                      , py::arg("filename")          = false
+                      , py::arg("hive_partitioning") = false
+                      , py::arg("union_by_name")     = false
+                      , py::arg("compression")       = py::none()
+       )
+	 .def("read_parquet", &DuckDBPyConnection::FromParquets
+                      , "Create a relation object from the Parquet files in file_globs"
+                      , py::arg("file_globs")
+                      , py::arg("binary_as_string")  = false
+                      , py::kw_only()
+                      , py::arg("file_row_number")   = false
+                      , py::arg("filename")          = false
+                      , py::arg("hive_partitioning") = false
+                      , py::arg("union_by_name")     = false
+                      , py::arg("compression")       = py::none()
+       )
+  ;
+
+  // Substrait related functions
+	m.def("from_substrait", &DuckDBPyConnection::FromSubstrait
+                        , "Create a query object from protobuf plan"
+                        , py::arg("proto")
+       )
+	 .def("get_substrait", &DuckDBPyConnection::GetSubstrait
+                       , "Serialize a query to protobuf"
+                       , py::arg("query")
+                       , py::kw_only()
+                       , py::arg("enable_optimizer") = true
+       )
+	 .def("from_substrait_json", &DuckDBPyConnection::FromSubstraitJSON
+                             , "Create a query object from a JSON protobuf plan"
+                             , py::arg("json")
+       )
+	 .def("get_substrait_json", &DuckDBPyConnection::GetSubstraitJSON
+                            , "Serialize a query to protobuf on the JSON format"
+                            , py::arg("query")
+                            , py::kw_only()
+                            , py::arg("enable_optimizer") = true
+       )
+	 .def("explain_substrait", &DuckDBPyConnection::ExplainSubstrait
+                           , "Explain a protobuf plan"
+                           , py::arg("proto")
+       )
+  ;
+
+  // Extension management functions
+  m.def( "install_extension", &DuckDBPyConnection::InstallExtension
+                            , "Install an extension by name, with an optional"
+                              " version and/or repository to get the extension from"
+                            , py::arg("extension")
+                            , py::kw_only()
+                            , py::arg("force_install")  = false
+                            , py::arg("repository")     = py::none()
+                            , py::arg("repository_url") = py::none()
+                            , py::arg("version")        = py::none()
+       )
+	 .def("load_extension", &DuckDBPyConnection::LoadExtension
+                        , "Load an installed extension"
+                        , py::arg("extension")
+    )
+  ;
+} // End of connection methods
 
 void DuckDBPyConnection::UnregisterFilesystem(const py::str &name) {
 	auto &database = con.GetDatabase();
@@ -405,17 +573,28 @@ DuckDBPyConnection::RegisterScalarUDF(const string &name, const py::function &ud
 }
 
 void DuckDBPyConnection::Initialize(py::handle &m) {
-	auto connection_module =
-	    py::class_<DuckDBPyConnection, shared_ptr<DuckDBPyConnection>>(m, "DuckDBPyConnection", py::module_local());
+	auto connection_module = py::class_<DuckDBPyConnection, shared_ptr<DuckDBPyConnection>>(
+    m, "DuckDBPyConnection", py::module_local()
+  );
 
 	connection_module.def("__enter__", &DuckDBPyConnection::Enter)
-	    .def("__exit__", &DuckDBPyConnection::Exit, py::arg("exc_type"), py::arg("exc"), py::arg("traceback"));
-	connection_module.def("__del__", &DuckDBPyConnection::Close);
+	                 .def("__exit__" , &DuckDBPyConnection::Exit
+                                   , py::arg("exc_type")
+                                   , py::arg("exc")
+                                   , py::arg("traceback")
+                       )
+	                 .def("__del__", &DuckDBPyConnection::Close)
+  ;
 
 	InitializeConnectionMethods(connection_module);
-	connection_module.def_property_readonly("description", &DuckDBPyConnection::GetDescription,
-	                                        "Get result set attributes, mainly column names");
-	connection_module.def_property_readonly("rowcount", &DuckDBPyConnection::GetRowcount, "Get result set row count");
+	connection_module.def_property_readonly("description", &DuckDBPyConnection::GetDescription
+                                                       , "Get result set attributes, mainly column names"
+                                         )
+	                 .def_property_readonly("rowcount", &DuckDBPyConnection::GetRowcount
+                                                    , "Get result set row count"
+                                         )
+  ;
+
 	PyDateTime_IMPORT; // NOLINT
 	DuckDBPyConnection::ImportCache();
 }
@@ -1760,6 +1939,53 @@ unique_ptr<DuckDBPyRelation> DuckDBPyConnection::FromArrow(py::object &arrow_obj
 	auto rel = make_shared_ptr<ViewRelation>(connection.context, std::move(tableref), name);
 	return make_uniq<DuckDBPyRelation>(std::move(rel));
 }
+
+// |> Substrait-related functions have been dropped from upstream
+
+unique_ptr<DuckDBPyRelation> DuckDBPyConnection::FromSubstrait(py::bytes &proto) {
+	auto &connection = con.GetConnection();
+	string name = "substrait_" + StringUtil::GenerateRandomName();
+	vector<Value> params;
+	params.emplace_back(Value::BLOB_RAW(proto));
+	return make_uniq<DuckDBPyRelation>(connection.TableFunction("from_substrait", params)->Alias(name));
+}
+
+unique_ptr<DuckDBPyRelation> DuckDBPyConnection::ExplainSubstrait(py::bytes &proto) {
+	if (!connection) { throw ConnectionException("Connection has already been closed"); }
+
+	string name = "substrait_plan_" + StringUtil::GenerateRandomName();
+	vector<Value> params;
+	params.emplace_back(Value::BLOB_RAW(proto));
+	return make_uniq<DuckDBPyRelation>(connection->TableFunction("translate_mohair", params)->Alias(name));
+}
+
+unique_ptr<DuckDBPyRelation> DuckDBPyConnection::GetSubstrait(const string &query, bool enable_optimizer) {
+	auto &connection = con.GetConnection();
+	vector<Value> params;
+	params.emplace_back(query);
+	named_parameter_map_t named_parameters({{"enable_optimizer", Value::BOOLEAN(enable_optimizer)}});
+	return make_uniq<DuckDBPyRelation>(
+	    connection.TableFunction("get_substrait", params, named_parameters)->Alias(query));
+}
+
+unique_ptr<DuckDBPyRelation> DuckDBPyConnection::GetSubstraitJSON(const string &query, bool enable_optimizer) {
+	auto &connection = con.GetConnection();
+	vector<Value> params;
+	params.emplace_back(query);
+	named_parameter_map_t named_parameters({{"enable_optimizer", Value::BOOLEAN(enable_optimizer)}});
+	return make_uniq<DuckDBPyRelation>(
+	    connection.TableFunction("get_substrait_json", params, named_parameters)->Alias(query));
+}
+
+unique_ptr<DuckDBPyRelation> DuckDBPyConnection::FromSubstraitJSON(const string &json) {
+	auto &connection = con.GetConnection();
+	string name = "from_substrait_" + StringUtil::GenerateRandomName();
+	vector<Value> params;
+	params.emplace_back(json);
+	return make_uniq<DuckDBPyRelation>(connection.TableFunction("from_substrait_json", params)->Alias(name));
+}
+
+// <|
 
 unordered_set<string> DuckDBPyConnection::GetTableNames(const string &query) {
 	auto &connection = con.GetConnection();
