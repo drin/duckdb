@@ -47,7 +47,6 @@ typedef unique_ptr<ArrowArrayStreamWrapper> (*stream_factory_produce_t)(uintptr_
 typedef void (*stream_factory_get_schema_t)(ArrowArrayStream *stream_factory_ptr, ArrowSchema &schema);
 
 struct ArrowScanFunctionData : public PyTableFunctionData {
-
   ArrowScanFunctionData( stream_factory_produce_t scanner_producer_p
                         ,uintptr_t                stream_factory_ptr_p)
     :  lines_read(0)
@@ -125,12 +124,13 @@ struct ArrowScanLocalState : public LocalTableFunctionState {
   unique_ptr<ArrowArrayStreamWrapper> stream;
   shared_ptr<ArrowArrayWrapper>       chunk;
 
-  vector<column_t>                                      column_ids;
-  unordered_map<idx_t, unique_ptr<ArrowArrayScanState>> array_states;
+	idx_t chunk_offset { 0 };
+	idx_t batch_index  { 0 };
+	vector<column_t> column_ids;
 
-  idx_t           chunk_offset { 0 };
-  idx_t           batch_index  { 0 };
-  TableFilterSet* filters      { nullptr };
+	unordered_map<idx_t, unique_ptr<ArrowArrayScanState>> array_states;
+
+	TableFilterSet* filters { nullptr };
 
   //! The DataChunk containing all read columns (even filter columns that are immediately removed)
   DataChunk all_columns;

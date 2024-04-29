@@ -31,13 +31,16 @@ public:
 class ArrowArrayWrapper {
 public:
 	ArrowArray arrow_array;
+
 	ArrowArrayWrapper() {
-		arrow_array.length = 0;
+		arrow_array.length  = 0;
 		arrow_array.release = nullptr;
 	}
+
 	ArrowArrayWrapper(ArrowArrayWrapper &&other) : arrow_array(other.arrow_array) {
 		other.arrow_array.release = nullptr;
 	}
+
 	~ArrowArrayWrapper();
 };
 
