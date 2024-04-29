@@ -36,76 +36,82 @@ struct OperatorPartitionData;
 struct OperatorPartitionInfo;
 
 struct TableFunctionInfo {
-	DUCKDB_API virtual ~TableFunctionInfo();
+  DUCKDB_API virtual ~TableFunctionInfo();
 
-	template <class TARGET>
-	TARGET &Cast() {
-		DynamicCastCheck<TARGET>(this);
-		return reinterpret_cast<TARGET &>(*this);
-	}
-	template <class TARGET>
-	const TARGET &Cast() const {
-		DynamicCastCheck<TARGET>(this);
-		return reinterpret_cast<const TARGET &>(*this);
-	}
+  template <class TARGET>
+  TARGET &Cast() {
+    DynamicCastCheck<TARGET>(this);
+    return reinterpret_cast<TARGET &>(*this);
+  }
+  template <class TARGET>
+  const TARGET &Cast() const {
+    D_ASSERT(dynamic_cast<const TARGET *>(this));
+    return reinterpret_cast<const TARGET &>(*this);
+  }
 };
 
 struct GlobalTableFunctionState {
 public:
-	// value returned from MaxThreads when as many threads as possible should be used
-	constexpr static const int64_t MAX_THREADS = 999999999;
+  // value returned from MaxThreads when as many threads as possible should be used
+  constexpr static const int64_t MAX_THREADS = 999999999;
 
 public:
-	DUCKDB_API virtual ~GlobalTableFunctionState();
+  DUCKDB_API virtual ~GlobalTableFunctionState();
 
-	virtual idx_t MaxThreads() const {
-		return 1;
-	}
+  virtual idx_t MaxThreads() const {
+    return 1;
+  }
 
-	template <class TARGET>
-	TARGET &Cast() {
-		DynamicCastCheck<TARGET>(this);
-		return reinterpret_cast<TARGET &>(*this);
-	}
-	template <class TARGET>
-	const TARGET &Cast() const {
-		DynamicCastCheck<TARGET>(this);
-		return reinterpret_cast<const TARGET &>(*this);
-	}
+  template <class TARGET>
+  TARGET &Cast() {
+    DynamicCastCheck<TARGET>(this);
+    return reinterpret_cast<TARGET &>(*this);
+  }
+  template <class TARGET>
+  const TARGET &Cast() const {
+    D_ASSERT(dynamic_cast<const TARGET *>(this));
+    return reinterpret_cast<const TARGET &>(*this);
+  }
 };
 
 struct LocalTableFunctionState {
-	DUCKDB_API virtual ~LocalTableFunctionState();
+  DUCKDB_API virtual ~LocalTableFunctionState();
 
-	template <class TARGET>
-	TARGET &Cast() {
-		DynamicCastCheck<TARGET>(this);
-		return reinterpret_cast<TARGET &>(*this);
-	}
-	template <class TARGET>
-	const TARGET &Cast() const {
-		DynamicCastCheck<TARGET>(this);
-		return reinterpret_cast<const TARGET &>(*this);
-	}
+  template <class TARGET>
+  TARGET &Cast() {
+    DynamicCastCheck<TARGET>(this);
+    return reinterpret_cast<TARGET &>(*this);
+  }
+  template <class TARGET>
+  const TARGET &Cast() const {
+    D_ASSERT(dynamic_cast<const TARGET *>(this));
+    return reinterpret_cast<const TARGET &>(*this);
+  }
 };
 
 struct TableFunctionBindInput {
-	TableFunctionBindInput(vector<Value> &inputs, named_parameter_map_t &named_parameters,
-	                       vector<LogicalType> &input_table_types, vector<string> &input_table_names,
-	                       optional_ptr<TableFunctionInfo> info, optional_ptr<Binder> binder,
-	                       TableFunction &table_function, const TableFunctionRef &ref)
-	    : inputs(inputs), named_parameters(named_parameters), input_table_types(input_table_types),
-	      input_table_names(input_table_names), info(info), binder(binder), table_function(table_function), ref(ref) {
-	}
+  TableFunctionBindInput( vector<Value>&                  inputs
+                         ,named_parameter_map_t&          named_parameters
+                         ,vector<LogicalType>&            input_table_types
+                         ,vector<string>&                 input_table_names
+                         ,optional_ptr<TableFunctionInfo> info
+                         ,optional_ptr<Binder>            binder
+                         ,TableFunction&                  table_function
+                         ,const TableFunctionRef&         ref)
+      :  inputs(inputs)
+        ,named_parameters(named_parameters)
+        ,input_table_types(input_table_types)
+        ,input_table_names(input_table_names)
+        ,info(info) {}
 
-	vector<Value> &inputs;
-	named_parameter_map_t &named_parameters;
-	vector<LogicalType> &input_table_types;
-	vector<string> &input_table_names;
-	optional_ptr<TableFunctionInfo> info;
-	optional_ptr<Binder> binder;
-	TableFunction &table_function;
-	const TableFunctionRef &ref;
+  vector<Value> &inputs;
+  named_parameter_map_t &named_parameters;
+  vector<LogicalType> &input_table_types;
+  vector<string> &input_table_names;
+  optional_ptr<TableFunctionInfo> info;
+  optional_ptr<Binder> binder;
+  TableFunction &table_function;
+  const TableFunctionRef &ref;
 };
 
 struct TableFunctionInitInput {
@@ -130,7 +136,7 @@ struct TableFunctionInitInput {
 	}
 
 	optional_ptr<const FunctionData> bind_data;
-	vector<column_t> column_ids;
+	vector<column_t>    column_ids;
 	vector<ColumnIndex> column_indexes;
 	const vector<idx_t> projection_ids;
 	optional_ptr<TableFilterSet> filters;
@@ -141,7 +147,7 @@ struct TableFunctionInitInput {
 			// No filter columns to remove.
 			return false;
 		}
-		if (projection_ids.size() == column_ids.size()) {
+		else if (projection_ids.size() == column_ids.size()) {
 			// Filter column is used in remainder of plan, so we cannot remove it.
 			return false;
 		}
@@ -152,16 +158,16 @@ struct TableFunctionInitInput {
 
 struct TableFunctionInput {
 public:
-	TableFunctionInput(optional_ptr<const FunctionData> bind_data_p,
-	                   optional_ptr<LocalTableFunctionState> local_state_p,
-	                   optional_ptr<GlobalTableFunctionState> global_state_p)
-	    : bind_data(bind_data_p), local_state(local_state_p), global_state(global_state_p) {
-	}
+  TableFunctionInput(optional_ptr<const FunctionData> bind_data_p,
+                     optional_ptr<LocalTableFunctionState> local_state_p,
+                     optional_ptr<GlobalTableFunctionState> global_state_p)
+      : bind_data(bind_data_p), local_state(local_state_p), global_state(global_state_p) {
+  }
 
 public:
-	optional_ptr<const FunctionData> bind_data;
-	optional_ptr<LocalTableFunctionState> local_state;
-	optional_ptr<GlobalTableFunctionState> global_state;
+  optional_ptr<const FunctionData> bind_data;
+  optional_ptr<LocalTableFunctionState> local_state;
+  optional_ptr<GlobalTableFunctionState> global_state;
 };
 
 struct TableFunctionPartitionInput {
@@ -225,42 +231,42 @@ enum class ScanType : uint8_t { TABLE, PARQUET, EXTERNAL };
 
 struct BindInfo {
 public:
-	explicit BindInfo(ScanType type_p) : type(type_p) {};
-	explicit BindInfo(TableCatalogEntry &table) : type(ScanType::TABLE), table(&table) {};
+  explicit BindInfo(ScanType type_p) : type(type_p) {};
+  explicit BindInfo(TableCatalogEntry &table) : type(ScanType::TABLE), table(&table) {};
 
-	unordered_map<string, Value> options;
-	ScanType type;
-	optional_ptr<TableCatalogEntry> table;
+  unordered_map<string, Value> options;
+  ScanType type;
+  optional_ptr<TableCatalogEntry> table;
 
-	void InsertOption(const string &name, Value value) { // NOLINT: work-around bug in clang-tidy
-		if (options.find(name) != options.end()) {
-			throw InternalException("This option already exists");
-		}
-		options.emplace(name, std::move(value));
-	}
-	template <class T>
-	T GetOption(const string &name) {
-		if (options.find(name) == options.end()) {
-			throw InternalException("This option does not exist");
-		}
-		return options[name].GetValue<T>();
-	}
-	template <class T>
-	vector<T> GetOptionList(const string &name) {
-		if (options.find(name) == options.end()) {
-			throw InternalException("This option does not exist");
-		}
-		auto option = options[name];
-		if (option.type().id() != LogicalTypeId::LIST) {
-			throw InternalException("This option is not a list");
-		}
-		vector<T> result;
-		auto list_children = ListValue::GetChildren(option);
-		for (auto &child : list_children) {
-			result.emplace_back(child.GetValue<T>());
-		}
-		return result;
-	}
+  void InsertOption(const string &name, Value value) { // NOLINT: work-around bug in clang-tidy
+    if (options.find(name) != options.end()) {
+      throw InternalException("This option already exists");
+    }
+    options.emplace(name, std::move(value));
+  }
+  template <class T>
+  T GetOption(const string &name) {
+    if (options.find(name) == options.end()) {
+      throw InternalException("This option does not exist");
+    }
+    return options[name].GetValue<T>();
+  }
+  template <class T>
+  vector<T> GetOptionList(const string &name) {
+    if (options.find(name) == options.end()) {
+      throw InternalException("This option does not exist");
+    }
+    auto option = options[name];
+    if (option.type().id() != LogicalTypeId::LIST) {
+      throw InternalException("This option is not a list");
+    }
+    vector<T> result;
+    auto list_children = ListValue::GetChildren(option);
+    for (auto &child : list_children) {
+      result.emplace_back(child.GetValue<T>());
+    }
+    return result;
+  }
 };
 
 typedef unique_ptr<FunctionData> (*table_function_bind_t)(ClientContext &context, TableFunctionBindInput &input,
@@ -327,13 +333,22 @@ enum class TableFunctionInitialization { INITIALIZE_ON_EXECUTE, INITIALIZE_ON_SC
 class TableFunction : public SimpleNamedParameterFunction { // NOLINT: work-around bug in clang-tidy
 public:
 	DUCKDB_API
-	TableFunction(string name, vector<LogicalType> arguments, table_function_t function,
-	              table_function_bind_t bind = nullptr, table_function_init_global_t init_global = nullptr,
-	              table_function_init_local_t init_local = nullptr);
+	TableFunction( string                       name
+	              ,vector<LogicalType>          arguments
+	              ,table_function_t             function
+	              ,table_function_bind_t        bind        = nullptr
+	              ,table_function_init_global_t init_global = nullptr
+	              ,table_function_init_local_t  init_local  = nullptr);
+
 	DUCKDB_API
-	TableFunction(const vector<LogicalType> &arguments, table_function_t function, table_function_bind_t bind = nullptr,
-	              table_function_init_global_t init_global = nullptr, table_function_init_local_t init_local = nullptr);
-	DUCKDB_API TableFunction();
+	TableFunction( const vector<LogicalType>&   arguments
+	              ,table_function_t             function
+	              ,table_function_bind_t        bind        = nullptr
+	              ,table_function_init_global_t init_global = nullptr
+	              ,table_function_init_local_t  init_local  = nullptr);
+
+	DUCKDB_API
+	TableFunction();
 
 	//! Bind function
 	//! This function is used for determining the return type of a table producing function and returning bind data

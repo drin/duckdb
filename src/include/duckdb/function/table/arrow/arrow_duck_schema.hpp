@@ -112,15 +112,14 @@ protected:
 	bool not_implemented = false;
 };
 
-using arrow_column_map_t = unordered_map<idx_t, shared_ptr<ArrowType>>;
+using arrow_column_map_t = unordered_map<idx_t, unique_ptr<ArrowType>>;
 
 struct ArrowTableType {
-public:
-	void AddColumn(idx_t index, shared_ptr<ArrowType> type);
-	const arrow_column_map_t &GetColumns() const;
+	void  AddColumn(idx_t index, unique_ptr<ArrowType> type);
+	const arrow_column_map_t& GetColumns() const;
 
-private:
-	arrow_column_map_t arrow_convert_data;
+  private:
+    arrow_column_map_t arrow_convert_data;
 };
 
 } // namespace duckdb
