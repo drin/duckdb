@@ -15,57 +15,73 @@
 
 //! Here we have the internal duckdb classes that interact with Arrow's Internal Header (i.e., duckdb/commons/arrow.hpp)
 namespace duckdb {
-class QueryResult;
-class DataChunk;
 
-class ArrowSchemaWrapper {
-public:
-	ArrowSchema arrow_schema;
+  // Type forwards
+  class QueryResult;
+  class DataChunk;
 
-	ArrowSchemaWrapper() {
-		arrow_schema.release = nullptr;
-	}
 
-	~ArrowSchemaWrapper();
-};
-class ArrowArrayWrapper {
-public:
-	ArrowArray arrow_array;
-	ArrowArrayWrapper() {
-		arrow_array.length = 0;
-		arrow_array.release = nullptr;
-	}
-	ArrowArrayWrapper(ArrowArrayWrapper &&other) noexcept : arrow_array(other.arrow_array) {
-		other.arrow_array.release = nullptr;
-	}
-	~ArrowArrayWrapper();
-};
+  struct ArrowSchemaWrapper {
+    // Attributes
+    ArrowSchema arrow_schema;
 
-class ArrowArrayStreamWrapper {
-public:
-	ArrowArrayStream arrow_array_stream;
-	int64_t number_of_rows;
+    // Constructors/Destructors
+    ~ArrowSchemaWrapper();
+    ArrowSchemaWrapper() { arrow_schema.release = nullptr; }
+  };
 
-public:
-	void GetSchema(ArrowSchemaWrapper &schema);
 
-	shared_ptr<ArrowArrayWrapper> GetNextChunk();
+  struct ArrowArrayWrapper {
+    // Attributes
+    ArrowArray arrow_array;
 
-	const char *GetError();
+    // Constructors/Destructors
+    ~ArrowArrayWrapper();
 
-	~ArrowArrayStreamWrapper();
-	ArrowArrayStreamWrapper() {
-		arrow_array_stream.release = nullptr;
-	}
-};
+    ArrowArrayWrapper() {
+      arrow_array.length  = 0;
+      arrow_array.release = nullptr;
+    }
 
-class ArrowUtil {
-public:
-	static bool TryFetchChunk(ChunkScanState &scan_state, ClientProperties options, idx_t chunk_size, ArrowArray *out,
-	                          idx_t &result_count, ErrorData &error);
-	static idx_t FetchChunk(ChunkScanState &scan_state, ClientProperties options, idx_t chunk_size, ArrowArray *out);
+    ArrowArrayWrapper(ArrowArrayWrapper &&other) noexcept : arrow_array(other.arrow_array) {
+      other.arrow_array.release = nullptr;
+    }
+  };
 
-private:
-	static bool TryFetchNext(QueryResult &result, unique_ptr<DataChunk> &out, ErrorData &error);
-};
+
+  struct ArrowArrayStreamWrapper {
+    // Attributes
+    ArrowArrayStream arrow_array_stream;
+    int64_t number_of_rows;
+
+    // Constructors/Destructors
+    ~ArrowArrayStreamWrapper();
+    ArrowArrayStreamWrapper() { arrow_array_stream.release = nullptr; }
+
+    // Methods
+    void GetSchema(ArrowSchemaWrapper &schema);
+    shared_ptr<ArrowArrayWrapper> GetNextChunk();
+    const char *GetError();
+  };
+
+  struct ArrowUtil {
+    static bool TryFetchChunk( ChunkScanState&  scan_state
+                              ,ClientProperties options
+                              ,idx_t            chunk_size
+                              ,ArrowArray*      out
+                              ,idx_t&           result_count
+                              ,ErrorData&       error);
+
+    static idx_t FetchChunk( ChunkScanState&  scan_state
+                            ,ClientProperties options
+                            ,idx_t            chunk_size
+                            ,ArrowArray*      out);
+
+    private:
+      static bool TryFetchNext( QueryResult&           result
+                               ,unique_ptr<DataChunk>& out
+                               ,ErrorData&             error);
+  };
+
 } // namespace duckdb
+
