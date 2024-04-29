@@ -23,13 +23,14 @@ extern "C" {
 
 struct ArrowSchema {
 	//! Array type description
-	const char *format;
-	const char *name;
-	const char *metadata;
-	int64_t flags;
-	int64_t n_children;
-	struct ArrowSchema **children;
-	struct ArrowSchema *dictionary;
+	const char* format;
+	const char* name;
+	const char* metadata;
+	int64_t     flags;
+	int64_t     n_children;
+
+	struct ArrowSchema** children;
+	struct ArrowSchema*  dictionary;
 
 	//! Release callback
 	void (*release)(struct ArrowSchema *);
