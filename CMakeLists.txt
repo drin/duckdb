@@ -28,7 +28,7 @@ set(DUCKDB_MODULE_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD "11" CACHE STRING "C++ standard to enforce")
+set(CMAKE_CXX_STANDARD "17" CACHE STRING "C++ standard to enforce")
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -869,9 +869,8 @@ function(build_loadable_extension_directory NAME ABI_TYPE OUTPUT_DIRECTORY EXTEN
     add_dependencies(duckdb_local_extension_repo ${NAME}_loadable_extension)
   endif()
 
-  # get parameters after parameters (remove name, abi_type, ...)
+  # any parameters after `PARAMETERS` are source files
   set(FILES "${ARGV}")
-  # remove name, abi_type, output_directory, extension_version, capi_version, parameters
   list(REMOVE_AT FILES 0 1 2 3 4 5)
 
   # Loop on files in reverse, peeling off any include directories
