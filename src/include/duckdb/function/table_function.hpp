@@ -102,7 +102,10 @@ struct TableFunctionBindInput {
         ,named_parameters(named_parameters)
         ,input_table_types(input_table_types)
         ,input_table_names(input_table_names)
-        ,info(info) {}
+        ,info(info)
+        ,binder(binder)
+        ,table_function(table_function)
+        ,ref(ref) {}
 
   vector<Value> &inputs;
   named_parameter_map_t &named_parameters;
