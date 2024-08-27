@@ -868,10 +868,28 @@ function(build_loadable_extension_directory NAME ABI_TYPE OUTPUT_DIRECTORY EXTEN
   if (LOCAL_EXTENSION_REPO)
     add_dependencies(duckdb_local_extension_repo ${NAME}_loadable_extension)
   endif()
-  # all parameters after output_directory
+
+  # get parameters after parameters (remove name, abi_type, ...)
   set(FILES "${ARGV}")
   # remove name, abi_type, output_directory, extension_version, capi_version, parameters
   list(REMOVE_AT FILES 0 1 2 3 4 5)
+
+  # Loop on files in reverse, peeling off any include directories
+  # NOTE: added as a workaround for adding include dirs to these targets
+  list(GET FILES -1 LAST_FILE)
+  string(FIND ${LAST_FILE} "-I" IS_INCLUDE)
+  while(${IS_INCLUDE} GREATER -1)
+    # pop the last file from the list
+    list(POP_BACK FILES LAST_FILE)
+    string(SUBSTRING ${LAST_FILE} 2 -1 ARG_INCLUDE_DIR)
+
+    # add it as an include directory
+    list(APPEND EXT_INCLUDE_DIRS ${ARG_INCLUDE_DIR})
+
+    # check the next one
+    list(GET FILES -1 LAST_FILE)
+    string(FIND ${LAST_FILE} "-I" IS_INCLUDE)
+  endwhile()
 
   # parse parameters
   string(FIND "${PARAMETERS}" "-no-warnings" IGNORE_WARNINGS)
@@ -883,6 +901,10 @@ function(build_loadable_extension_directory NAME ABI_TYPE OUTPUT_DIRECTORY EXTEN
   else()
      add_library(${TARGET_NAME} SHARED ${FILES})
   endif()
+
+  # NOTE: Specify provided include directories for the target
+  target_include_directories(${TARGET_NAME} PRIVATE ${EXT_INCLUDE_DIRS})
+
   # this disables the -Dsome_target_EXPORTS define being added by cmake which otherwise trips clang-tidy (yay)
   set_target_properties(${TARGET_NAME} PROPERTIES DEFINE_SYMBOL "")
   set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME ${NAME})
