@@ -164,6 +164,14 @@ public:
 	DUCKDB_API string GetSubstraitJSON(const string &query);
 	//! Returns a Query Result from a substrait JSON
 	DUCKDB_API unique_ptr<QueryResult> FromSubstraitJSON(const string &json);
+
+	// >> Mohair functions
+	//! Returns an explain plan for a substrait blob (using mohair path and extensions)
+	DUCKDB_API unique_ptr<QueryResult> TranslateMohair(const string &proto);
+
+	//! Returns a Query Result from a substrait blob (using mohair path and extensions)
+	DUCKDB_API unique_ptr<QueryResult> ExecuteMohair(const string &proto);
+
 	DUCKDB_API void BeginTransaction();
 	DUCKDB_API void Commit();
 	DUCKDB_API void Rollback();

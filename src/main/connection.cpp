@@ -112,6 +112,19 @@ DUCKDB_API unique_ptr<QueryResult> Connection::FromSubstrait(const string &proto
 	return TableFunction("from_substrait", params)->Execute();
 }
 
+// NOTE: mohair functions
+DUCKDB_API unique_ptr<QueryResult> Connection::TranslateMohair(const string &proto) {
+	vector<Value> params;
+	params.emplace_back(Value::BLOB_RAW(proto));
+	return TableFunction("translate_mohair", params)->Execute();
+}
+
+DUCKDB_API unique_ptr<QueryResult> Connection::ExecuteMohair(const string &proto) {
+	vector<Value> params;
+	params.emplace_back(Value::BLOB_RAW(proto));
+	return TableFunction("execute_mohair", params)->Execute();
+}
+
 DUCKDB_API string Connection::GetSubstraitJSON(const string &query) {
 	vector<Value> params;
 	params.emplace_back(query);
