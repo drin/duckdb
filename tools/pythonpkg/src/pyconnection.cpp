@@ -260,7 +260,7 @@ static void InitializeConnectionMethods(py::class_<DuckDBPyConnection, shared_pt
 	 .def("checkpoint", &DuckDBPyConnection::Checkpoint
                     , "Synchronizes data in the write-ahead log (WAL)"
                       " to the database data file (no-op for in-memory connections)"
-       );
+       )
 	 .def("append", &DuckDBPyConnection::Append
                 , "Append the passed DataFrame to the named table"
                 , py::arg("table_name")
@@ -1951,12 +1951,13 @@ unique_ptr<DuckDBPyRelation> DuckDBPyConnection::FromSubstrait(py::bytes &proto)
 }
 
 unique_ptr<DuckDBPyRelation> DuckDBPyConnection::ExplainSubstrait(py::bytes &proto) {
-	if (!connection) { throw ConnectionException("Connection has already been closed"); }
+	auto &connection = con.GetConnection();
 
-	string name = "substrait_plan_" + StringUtil::GenerateRandomName();
 	vector<Value> params;
 	params.emplace_back(Value::BLOB_RAW(proto));
-	return make_uniq<DuckDBPyRelation>(connection->TableFunction("translate_mohair", params)->Alias(name));
+
+	string name = "substrait_plan_" + StringUtil::GenerateRandomName();
+	return make_uniq<DuckDBPyRelation>(connection.TableFunction("translate_mohair", params)->Alias(name));
 }
 
 unique_ptr<DuckDBPyRelation> DuckDBPyConnection::GetSubstrait(const string &query, bool enable_optimizer) {
