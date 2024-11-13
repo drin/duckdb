@@ -365,9 +365,6 @@ public:
   //! (Optional) returns the partition info of the current scan operator
   table_function_get_partition_data_t get_partition_data;
 
-  //! (Optional) returns the current batch index of the current scan operator
-  table_function_get_batch_index_t get_batch_index;
-
   //! (Optional) returns extra bind info
   table_function_get_bind_info_t get_bind_info;
 
