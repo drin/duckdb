@@ -274,9 +274,9 @@ static void InitializeConnectionMethods(py::class_<DuckDBPyConnection, shared_pt
                   , py::arg("python_object")
        )
 	 .def("unregister", &DuckDBPyConnection::UnregisterPythonObject, "Unregister the view name", py::arg("view_name"))
-	 .def("table"     , &DuckDBPyConnection::Table , "Create a relation object for the named table", py::arg("table_name"))
+	 .def("values"    , &DuckDBPyConnection::Values, "Create a relation object from the passed values")
+	 .def("table"     , &DuckDBPyConnection::Table , "Create a relation object for the named table" , py::arg("table_name"))
 	 .def("view"      , &DuckDBPyConnection::View  , "Create a relation object for the named view" , py::arg("view_name"))
-	 .def("values"    , &DuckDBPyConnection::Values, "Create a relation object from the passed values", py::arg("values"))
 	 .def("table_function", &DuckDBPyConnection::TableFunction
                         , "Create a relation object from the name'd table function with given parameters"
                         , py::arg("name")
