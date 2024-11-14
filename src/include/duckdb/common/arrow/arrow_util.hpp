@@ -15,17 +15,26 @@
 
 namespace duckdb {
 
-class QueryResult;
-class DataChunk;
+  class QueryResult;
+  class DataChunk;
 
-class ArrowUtil {
-public:
-	static bool TryFetchChunk(ChunkScanState &scan_state, ClientProperties options, idx_t chunk_size, ArrowArray *out,
-	                          idx_t &result_count, ErrorData &error);
-	static idx_t FetchChunk(ChunkScanState &scan_state, ClientProperties options, idx_t chunk_size, ArrowArray *out);
+  struct ArrowUtil {
+    static bool TryFetchChunk( ChunkScanState&  scan_state
+                              ,ClientProperties options
+                              ,idx_t            chunk_size
+                              ,ArrowArray*      out
+                              ,idx_t&           result_count
+                              ,ErrorData&       error);
 
-private:
-	static bool TryFetchNext(QueryResult &result, unique_ptr<DataChunk> &out, ErrorData &error);
-};
+    static idx_t FetchChunk( ChunkScanState&  scan_state
+                            ,ClientProperties options
+                            ,idx_t            chunk_size
+                            ,ArrowArray*      out);
+
+    private:
+      static bool TryFetchNext( QueryResult&           result
+                               ,unique_ptr<DataChunk>& out
+                               ,ErrorData&             error);
+  };
 
 } // namespace duckdb
