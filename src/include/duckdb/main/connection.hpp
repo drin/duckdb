@@ -189,6 +189,9 @@ public:
 	//! Returns a Query Result from a substrait blob (using mohair path and extensions)
 	DUCKDB_API unique_ptr<QueryResult> ExecuteMohair(const string &proto);
 
+	//! Returns an explain plan for a substrait blob (using mohair path and extensions)
+	DUCKDB_API unique_ptr<QueryResult> ExplainMohair(const string &proto);
+
 	DUCKDB_API void BeginTransaction();
 	DUCKDB_API void Commit();
 	DUCKDB_API void Rollback();
