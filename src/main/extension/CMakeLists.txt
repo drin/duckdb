@@ -4,24 +4,29 @@ include_directories(../../../third_party/httplib/)
 # include file and a loader function based on the `DUCKDB_EXTENSION_NAMES`
 # parameter.
 
-# generated_extension_headers.hpp
+
+# >> Generate "generated_extension_headers.hpp"
+# NOTE: variables to be substituted: `EXT_HEADER_INCLUDES`
+get_statically_linked_extensions("${DUCKDB_EXTENSION_NAMES}"
+                                 STATICALLY_LINKED_EXTENSIONS)
+
+set(EXT_HEADER_INCLUDES "")
+foreach(EXT_NAME IN LISTS STATICALLY_LINKED_EXTENSIONS)
+  string(TOUPPER ${EXT_NAME} EXT_NAME_UPPERCASE)
+  if(${DUCKDB_EXTENSION_${EXT_NAME_UPPERCASE}_SHOULD_LINK})
+    set(EXT_INCLUDE "#include \"${EXT_NAME}_extension.hpp\"")
+    set(EXT_HEADER_INCLUDES "${EXT_HEADER_INCLUDES}${EXT_INCLUDE}\n"
+  endif()
+endforeach()
+
+# Generate the file itself
 configure_file(
   generated_extension_headers.hpp.in
   "${PROJECT_BINARY_DIR}/codegen/include/generated_extension_headers.hpp")
 
-get_statically_linked_extensions("${DUCKDB_EXTENSION_NAMES}"
-                                 STATICALLY_LINKED_EXTENSIONS)
-foreach(EXT_NAME IN LISTS STATICALLY_LINKED_EXTENSIONS)
-  string(TOUPPER ${EXT_NAME} EXT_NAME_UPPERCASE)
-  if(${DUCKDB_EXTENSION_${EXT_NAME_UPPERCASE}_SHOULD_LINK})
-    set(DUCKDB_EXTENSION_HEADER "${EXT_NAME}_extension.hpp")
-    file(APPEND
-         "${PROJECT_BINARY_DIR}/codegen/include/generated_extension_headers.hpp"
-         "#include \"${DUCKDB_EXTENSION_HEADER}\"\n")
-  endif()
-endforeach()
 
-# generated_extension_loader.hpp
+# >> Generate "generated_extension_headers.hpp"
+# NOTE: variables to be substituted: `EXT_HEADER_INCLUDES`
 set(EXT_LOADER_NAME_LIST "")
 set(EXT_LOADER_BODY "")
 foreach(EXT_NAME IN LISTS STATICALLY_LINKED_EXTENSIONS)
@@ -75,14 +80,19 @@ endif()
 
 set(GENERATED_CPP_FILE
     ${PROJECT_BINARY_DIR}/codegen/src/generated_extension_loader.cpp)
+
+# Generate the file itself
 configure_file(generated_extension_loader.cpp.in "${GENERATED_CPP_FILE}")
+
+
+# >> Create a target that uses the generated source file
 add_definitions(-DGENERATED_EXTENSION_HEADERS=1)
 
 add_library(duckdb_generated_extension_loader OBJECT ${GENERATED_CPP_FILE})
 set(generated_loader_obj_files
     $<TARGET_OBJECTS:duckdb_generated_extension_loader>)
 
-# include generated includes
+# add the generated header file (by adding the directory it was generated into)
 include_directories("${PROJECT_BINARY_DIR}/codegen/include/")
 
 if(${EXIT_TIME_DESTRUCTORS_WARNING})
