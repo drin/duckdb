@@ -1,0 +1,9 @@
+the cmake build uses build options (e.g. `...SUBSTRAIT_NAME`) to dynamically
+`add_subdirectory` to the cmake build.
+
+We will try to do a simpler version that uses the same array (`...SUBSTRAIT_NAME=[]`) to
+list dependencies that we dynamically depend on in meson. Each string provided in the
+array will provide a dependency name that can also be used as a subproject name (first
+element in the `fallback` kwarg) and prefix for the target (second element in the
+`fallback` kwarg that is "<library>_dep" by convention).
+
