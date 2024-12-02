@@ -1,0 +1,317 @@
+# ------------------------------
+# Feature flags
+
+# >> Compiler and build behavior options
+option('FORCE_COLORED_OUTPUT'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Always produce ANSI-colored output (GNU/Clang only).'
+)
+
+option('FORCE_32_BIT'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Feature to set relevant 32-bit flags for compiler.'
+)
+
+option('FORCE_WARN_UNUSED'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Unused code objects lead to compiler warnings.'
+)
+
+option('USE_WASM_THREADS'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Should threads be used'
+)
+
+option('DISABLE_UNITY'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Disable unity builds.'
+)
+
+option('AMALGAMATION_BUILD'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Build from the amalgamation files, rather than the normal sources.'
+)
+
+option('BUILD_MAIN_DUCKDB_LIBRARY'
+  ,type       : 'boolean'
+  ,value      : true
+  ,description: 'Build the main duckdb library and executable.'
+)
+
+option('BUILD_BENCHMARKS'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Enable building of the benchmark suite.'
+)
+
+option('BUILD_TPCE'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Enable building fo the TPC-E tool.'
+)
+
+option('BUILD_PYTHON'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Build the DuckDB Python extension'
+)
+
+option('BUILD_CORE_FUNCTIONS_EXTENSION'
+  ,type       : 'feature'
+  ,value      : 'enabled'
+  ,description: 'Flag affecting building of the catalog (this may be currently unused)'
+)
+
+option('USER_SPACE'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Build the DuckDB Python in the user space'
+)
+
+option('FORCE_QUERY_LOG'
+  ,type       : 'string'
+  ,value      : ''
+  ,description: 'If enabled, all queries will be logged to the specified path'
+)
+
+option('BUILD_SHELL'
+  ,type       : 'feature'
+  ,value      : 'enabled'
+  ,description: 'Build the DuckDB Shell and SQLite API Wrappers'
+)
+
+option('DISABLE_THREADS'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Disable support for multi-threading'
+)
+
+option('CLANG_TIDY'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Enable build for clang-tidy; disables all source files excluding the core database. This does not produce a working build.'
+)
+
+option('BUILD_UNITTESTS'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Build the C++ Unit Tests.'
+)
+
+# >> Debug options
+option('EXPLICIT_EXCEPTIONS'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Debug setting: disable inlining of strings'
+)
+
+option('DISABLE_STR_INLINE'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: disable inlining of strings'
+)
+
+option('DISABLE_MEMORY_SAFETY'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: disable memory access checks at runtime'
+)
+
+option('DISABLE_ASSERTIONS'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: disable assertions'
+)
+
+option('ALTERNATIVE_VERIFY'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: use alternative verify mode'
+)
+
+option('RUN_SLOW_VERIFIERS'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: enable a more extensive set of verifiers'
+)
+
+option('DESTROY_UNPINNED_BLOCKS'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: destroy uninned buffer-managed blocks'
+)
+
+option('FORCE_ASYNC_SINK_SOURCE'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: forces sinks/sources to block the first 2 times they are called'
+)
+
+option('DEBUG_ALLOCATION'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: keep track of outstanding allocations to detec memory leaks'
+)
+
+option('DEBUG_STACKTRACE'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: print a stacktrace on asserts and when testing crashes'
+)
+
+option('DEBUG_MOVE'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Debug setting: Ensure std::move is being used'
+)
+
+option('VERIFY_VECTOR'
+  ,type       : 'string'
+  ,value      : 'none'
+  ,description: 'Debug setting: verify vectors. Options: none (default), dictionary_expression, dictionary_operator, constant_operator, sequence_operator, nested_shuffle'
+)
+
+option('EXIT_TIME_DESTRUCTORS_WARNING'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Enable compiler flags for some warnings (e.g. exit-time-destructors, narrowing, conversion, etc.)'
+)
+
+# >> Extension options
+option('DUCKDB_EXTENSION_NAMES'
+  ,type       : 'array'
+  ,value      : '[]'
+  ,description: 'List of in-tree extensions to compile.'
+)
+
+option('ENABLE_EXTENSION_AUTOLOADING'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Enable extension auto-loading by default.'
+)
+
+option('ENABLE_EXTENSION_AUTOINSTALL'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Enable extension auto-installing by default.'
+)
+
+option('EXTENSION_TESTS_ONLY'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Load tests for extensions without building them.'
+)
+
+option('WASM_LOADABLE_EXTENSIONS'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'WebAssembly build with loadable extensions.'
+)
+
+option('EXTENSION_STATIC_BUILD'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Extension build linking statically with DuckDB. Required for building linux loadable extensions.'
+)
+
+option('BUILD_EXTENSIONS_ONLY'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Build all extensions as linkable, overriding DONT_LINK without building core.'
+)
+
+option('DISABLE_BUILTIN_EXTENSIONS'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Disable linking extensions.'
+)
+
+option('GENERATE_EXTENSION_ENTRIES'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Build for generating extension_entries.hpp'
+)
+
+option('DISABLE_EXTENSION_LOAD'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Disable support for loading and installing extensions'
+)
+
+option('EXTENSION_CONFIG_BUILD'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: 'Produce extension configuration artifacts instead of building (e.g. vcpkg.json, extensions.txt).'
+)
+
+option('TEST_WITH_LOADABLE_EXTENSION'
+  ,type       : 'string'
+  ,value      : ''
+  ,description: 'String containing a ";" delimited list of extensions to try loading.'
+)
+
+option('TEST_REMOTE_INSTALL'
+  ,type       : 'string'
+  ,value      : ''
+  ,description: 'Test installation of specific extensions'
+)
+
+# >> Sanitizer options
+option('ENABLE_SANITIZER'
+  ,type       : 'feature'
+  ,value      : 'enabled'
+  ,description: 'Enable address sanitizer.'
+)
+
+option('ENABLE_THREAD_SANITIZER'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Enable thread sanitizer.'
+)
+
+option('ENABLE_UBSAN'
+  ,type       : 'feature'
+  ,value      : 'enabled'
+  ,description: 'Enable undefined behavior sanitizer.'
+)
+
+option('DISABLE_VPTR_SANITIZER'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Disable vptr sanitizer; work-around for sanitizer false positive on Apple M1.'
+)
+
+option('FORCE_SANITIZER'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'Forces building with sanitizers even if the Python and R modules are enabled.'
+)
+
+# >> Language options
+option('EMSCRIPTEN'
+  ,type       : 'boolean'
+  ,value      : false
+  ,description: ''
+)
+
+
+# ------------------------------
+# Config opptions
+
+option('OS_ARCH'
+  ,type       : 'feature'
+  ,value      : 'disabled'
+  ,description: 'DuckDB name for an architecture.'
+)
+
+option('DUCKDB_EXPLICIT_VERSION'
+  ,type       : 'string'
+  ,value      : ''
+  ,description: 'An explicit version to assign to the build artifacts.'
+)
