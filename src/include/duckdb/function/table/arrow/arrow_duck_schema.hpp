@@ -112,10 +112,10 @@ protected:
 	bool not_implemented = false;
 };
 
-using arrow_column_map_t = unordered_map<idx_t, unique_ptr<ArrowType>>;
+using arrow_column_map_t = unordered_map<idx_t, shared_ptr<ArrowType>>;
 
 struct ArrowTableType {
-	void  AddColumn(idx_t index, unique_ptr<ArrowType> type);
+	void  AddColumn(idx_t index, shared_ptr<ArrowType> type);
 	const arrow_column_map_t& GetColumns() const;
 
   private:

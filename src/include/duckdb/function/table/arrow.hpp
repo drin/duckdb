@@ -159,7 +159,7 @@ namespace duckdb {
       auto it = array_states.find(child_idx);
 
       if (it == array_states.end()) {
-        auto  child_p = make_uniq<ArrowArrayScanState>(*this);
+        auto  child_p = make_uniq<ArrowArrayScanState>(*this, context);
         auto& child   = *child_p;
         array_states.emplace(child_idx, std::move(child_p));
 
@@ -238,11 +238,11 @@ namespace duckdb {
 		//! Scan Function
 		static void ArrowScanFunction(ClientContext &context, TableFunctionInput &data, DataChunk &output);
 
-		static void PopulateArrowTableType( DBConfig&            config
-		                                   ,ArrowTableType&      arrow_table
-		                                   ,ArrowSchemaWrapper&  schema_p
-		                                   ,vector<string>&      names
-		                                   ,vector<LogicalType>& return_types);
+		static void PopulateArrowTableType( DBConfig&                 config
+		                                   ,ArrowTableType&           arrow_table
+		                                   ,const ArrowSchemaWrapper& schema_p
+		                                   ,vector<string>&           names
+		                                   ,vector<LogicalType>&      return_types);
 
 	 protected:
 		//! Defines Maximum Number of Threads

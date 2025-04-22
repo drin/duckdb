@@ -17,9 +17,12 @@
 
 namespace duckdb {
 
-void ArrowTableFunction::PopulateArrowTableType(DBConfig &config, ArrowTableType &arrow_table,
-                                                const ArrowSchemaWrapper &schema_p, vector<string> &names,
-                                                vector<LogicalType> &return_types) {
+void
+ArrowTableFunction::PopulateArrowTableType( DBConfig&                 config
+                                           ,ArrowTableType&           arrow_table
+                                           ,const ArrowSchemaWrapper& schema_p
+                                           ,vector<string>&           names
+                                           ,vector<LogicalType>&      return_types) {
 	for (idx_t col_idx = 0; col_idx < static_cast<idx_t>(schema_p.arrow_schema.n_children); col_idx++) {
 		auto &schema = *schema_p.arrow_schema.children[col_idx];
 		if (!schema.release) {
